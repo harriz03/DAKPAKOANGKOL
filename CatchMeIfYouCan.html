@@ -1,0 +1,188 @@
+<html>
+<head>
+  <title>Catch Me If You Can</title>
+  
+  <style>
+    body {
+      font-family: 'Verdana', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #1e1e1e; 
+      background-image: url('demon_slayer.jpg');
+      color: #fff; 
+    }
+
+    h1 {
+      text-align: center;
+      font-family: cursive;
+      color: #ff6347; 
+      text-shadow: 2px 2px 4px rgba(255, 99, 71, 0.8); 
+    }
+
+    #game-container {
+      width: auto;
+      height: 500px;
+      border: 2px solid #fff; 
+      position: relative;
+      margin: 20px;
+      background-color: #333; 
+      border-radius: 10px; 
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2); 
+      overflow: hidden;
+    }
+
+    #character {
+      width: 30px;
+      height: 30px;
+      background-color: #ff6347; 
+      border-radius: 50%;
+      position: absolute;
+      bottom: 0%;
+      right: 0%;
+      transform: translate(-50%, -50%);
+      image-rendering: pixelated; 
+    }
+
+    #destination {
+      width: 50px;
+      height: 50px;
+      background-color: #4682b4; 
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      border-radius: 5px;
+      image-rendering: pixelated;
+    }
+
+    .enemy {
+      width: 20px;
+      height: 20px;
+      background-color: #778899; 
+      position: absolute;
+      border-radius: 50%;
+      image-rendering: pixelated;
+    }
+  </style>
+
+</head>
+<body>
+  <div id="game-container">
+    <div id="character"></div>
+    <div id="destination"></div>
+  </div>
+  <h1>Catch Me if You Can!</h1>
+<script>
+ document.addEventListener("DOMContentLoaded", function() {
+  const character = document.getElementById("character");
+  const destination = document.getElementById("destination");
+  const gameContainer = document.getElementById("game-container");
+  const enemySpeed = 2;
+  const enemies = [];
+  let isGameOver = false;
+
+  function moveCharacter(event) {
+    if (!isGameOver) {
+      const key = event.key;
+      const characterRect = character.getBoundingClientRect();
+      const gameRect = gameContainer.getBoundingClientRect();
+      const step = 10;
+      character.style.bottom = "20px";
+      character.style.right = "20px";
+
+      switch (key) {
+        case "ArrowUp":
+          if (characterRect.top - step > gameRect.top) {
+            character.style.top = `${characterRect.top - step}px`;
+          }
+          break;
+        case "ArrowDown":
+          if (characterRect.bottom + step < gameRect.bottom) {
+            character.style.top = `${characterRect.top + step}px`;
+          }
+          break;
+        case "ArrowLeft":
+          if (characterRect.left - step > gameRect.left) {
+            character.style.left = `${characterRect.left - step}px`;
+          }
+          break;
+        case "ArrowRight":
+          if (characterRect.right + step < gameRect.right) {
+            character.style.left = `${characterRect.left + step}px`;
+          }
+          break;
+      }
+    }
+    checkWin();
+  }
+
+  function createEnemy() {
+      const enemy = document.createElement("div");
+      enemy.classList.add("enemy");
+      
+      const randomLeft = Math.random() * (gameContainer.clientWidth - 20);
+      const randomTop = Math.random() * (gameContainer.clientHeight - 20);
+      const randomRight = Math.random() * (gameContainer.clientWidth - 20);
+      const randomBottom = Math.random() * (gameContainer.clientHeight - 20);
+      
+      enemy.style.left = `${randomLeft}px`;
+      enemy.style.top = `${randomTop}px`;
+      enemy.style.right = `${randomRight}px`;
+      enemy.style.bottom = `${randomBottom}px`;
+
+      gameContainer.appendChild(enemy);
+      enemies.push(enemy);
+    }
+
+  function moveEnemies() {
+    enemies.forEach((enemy) => {
+      const enemyRect = enemy.getBoundingClientRect();
+      enemy.style.left = `${enemyRect.left - enemySpeed}px`;
+      enemy.style.right = `${enemyRect.right - enemySpeed}px`;
+      const characterRect = character.getBoundingClientRect();
+
+      if (
+        characterRect.right >= enemyRect.left &&
+        characterRect.left <= enemyRect.right &&
+        characterRect.bottom >= enemyRect.top &&
+        characterRect.top <= enemyRect.bottom
+      ) {
+        endGame();
+      }
+    });
+  }
+
+  function checkWin() {
+    const characterRect = character.getBoundingClientRect();
+    const destinationRect = destination.getBoundingClientRect();
+
+    if (
+      characterRect.right >= destinationRect.left &&
+      characterRect.left <= destinationRect.right &&
+      characterRect.bottom >= destinationRect.top &&
+      characterRect.top <= destinationRect.bottom
+    ) {
+      alert("You reached the destination! You win!");
+      endGame();
+    }
+  }
+  
+  function endGame() {
+    isGameOver = true;
+    alert("Game Over!");
+    document.removeEventListener("keydown", moveCharacter);
+    clearInterval(enemyInterval);
+  }
+
+  document.addEventListener("keydown", moveCharacter);
+  const enemyInterval = setInterval(() => {
+    createEnemy();
+    moveEnemies();
+  }, 1000);
+});
+
+
+
+</script>
+
+</body>
+</html>
